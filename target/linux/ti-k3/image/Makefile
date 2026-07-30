@@ -47,7 +47,7 @@ define Device/beagleboard_am625-beagleplay
   DEVICE_MODEL := BeaglePlay
   DEVICE_DTS := k3-am625-beagleplay
   UBOOT_DEVICE_NAME := beagleboard_am625-beagleplay
-  DEVICE_PACKAGES := kmod-wl18xx wpad-basic-openssl kmod-usb-net
+  DEVICE_PACKAGES := kmod-wl18xx wpad-basic-openssl kmod-usb-net zephyr-beagleplay-m4
 endef
 TARGET_DEVICES += beagleboard_am625-beagleplay
 
