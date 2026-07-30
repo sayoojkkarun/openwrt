@@ -1,0 +1,58 @@
+From: Sayooj K Karun <sayooj@aerlync.com>
+Subject: [PATCH] arm64: dts: ti: am625-beagleplay: enable MCU M4F remoteproc
+
+Add the reserved-memory carveouts, mailbox, and mcu_m4fss node overrides
+needed to load and run firmware on the Cortex-M4F (MCU domain) remote
+processor: two DDR regions for the RPMsg vrings/resource table and M4F
+code and data, the ti,omap-mailbox instance the M4F and A53 use to
+signal each other, and mcu_m4fss itself wired up with those regions
+and enabled. Addresses match TI's own k3-am62-ti-ipc-firmware.dtsi
+reference overlay and the Zephyr board's own memory map
+(beagleplay_am6254_m4.dts).
+
+Signed-off-by: Sayooj K Karun <sayooj@aerlync.com>
+---
+ arch/arm64/boot/dts/ti/k3-am625-beagleplay.dts | 28 ++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+--- a/arch/arm64/boot/dts/ti/k3-am625-beagleplay.dts
++++ b/arch/arm64/boot/dts/ti/k3-am625-beagleplay.dts
+@@ -88,6 +88,18 @@
+ 			reg = <0x00 0x9db00000 0x00 0xc00000>;
+ 			no-map;
+ 		};
++
++		mcu_m4fss_dma_memory_region: memory@9cb00000 {
++			compatible = "shared-dma-pool";
++			reg = <0x00 0x9cb00000 0x00 0x100000>;
++			no-map;
++		};
++
++		mcu_m4fss_memory_region: memory@9cc00000 {
++			compatible = "shared-dma-pool";
++			reg = <0x00 0x9cc00000 0x00 0xe00000>;
++			no-map;
++		};
+ 	};
+ 
+ 	sdio_pwrseq: sdio-pwrseq {
+@@ -946,3 +958,19 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mikrobus_pwm_pins_default>;
+ };
++
++&mailbox0_cluster0 {
++	status = "okay";
++
++	mbox_m4_0: mbox-m4-0 {
++		ti,mbox-rx = <0 0 0>;
++		ti,mbox-tx = <1 0 0>;
++	};
++};
++
++&mcu_m4fss {
++	mboxes = <&mailbox0_cluster0 &mbox_m4_0>;
++	memory-region = <&mcu_m4fss_dma_memory_region>,
++			<&mcu_m4fss_memory_region>;
++	status = "okay";
++};
